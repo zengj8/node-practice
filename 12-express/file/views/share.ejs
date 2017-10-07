@@ -1,0 +1,73 @@
+<%- include header %>
+
+<script type="text/javascript">
+
+    $(document).ready(() => {
+        $.ajax({
+            url: "/shareList",
+            type: "get",
+            // dataType: 'json',
+            success: function(data) {
+                let json = JSON.parse(data);
+                // console.log
+                json.data.forEach((value, index, array) => {
+                    let a = document.createElement("a");
+                    a.href = '/downloadFile?file=' + value._id;
+                    a.innerHTML = value.filename;
+                    $("#list").append(a);
+                    $("#list").append("&nbsp;");
+
+                    if (value.public == false) {
+                        let button = document.createElement("button");
+                        button.textContent = "分享";
+                        button.onclick = function() {
+                            $.ajax({
+                                url: "/share",
+                                type: "post",
+                                data: {file: value._id},
+                                success: function(data) {
+                                    let json = JSON.parse(data);
+                                    if (json.code == 0) {
+                                        alert('分享成功');
+                                        location.reload();
+                                    } else {
+                                        alert('分享失败');
+                                    }
+                                }
+                            });
+                        }
+                        $("#list").append(button);
+                    } else {
+                        let button = document.createElement("button");
+                        button.textContent = "取消分享";
+                        button.onclick = function() {
+                            $.ajax({
+                                url: "/unshare",
+                                type: "post",
+                                data: {file: value._id},
+                                success: function(data) {
+                                    let json = JSON.parse(data);
+                                    if (json.code == 0) {
+                                        alert('取消分享成功');
+                                        location.reload();
+                                    } else {
+                                        alert('取消分享失败');
+                                    }
+                                }
+                            });
+                        }
+                        $("#list").append(button);
+                    }
+
+                    $("#list").append(document.createElement("br"));
+                });
+            }
+        });
+    });
+
+</script>
+
+可分享文件列表：
+<div id="list"></div>
+
+<%- include footer %>
